@@ -1,0 +1,2 @@
+# mahjong_score_board
+mahjong_score_board
