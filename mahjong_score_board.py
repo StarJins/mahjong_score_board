@@ -1,17 +1,21 @@
 import gspread
+import json
 from oauth2client.service_account import ServiceAccountCredentials
 
-scope = ["https://spreadsheets.google.com/feeds",
-         "https://www.googleapis.com/auth/spreadsheets",
-         "https://www.googleapis.com/auth/drive.file",
-         "https://www.googleapis.com/auth/drive"]
+with open('info.json', 'r', encoding='UTF-8') as json_file:
+    info = json.load(json_file)
 
-creds = ServiceAccountCredentials.from_json_keyfile_name("mahjong-score-board-3e989bae163a.json", scope)
+    scope = ['https://spreadsheets.google.com/feeds',
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive.file',
+            'https://www.googleapis.com/auth/drive']
 
-spreadsheet_name = "정신병동 오프 원투우마"
-client = gspread.authorize(creds)
-spreadsheet = client.open(spreadsheet_name)
+    creds = ServiceAccountCredentials.from_json_keyfile_name(info['keyFile'], scope)
 
-sheet = spreadsheet.worksheet("순위")
-list_of_lists = sheet.get_all_values()
-print(list_of_lists)
+    spreadsheet_name = info['spreadsheetName']
+    client = gspread.authorize(creds)
+    spreadsheet = client.open(spreadsheet_name)
+
+    sheet = spreadsheet.worksheet(info['sheetName'])
+    list_of_lists = sheet.get_all_values()
+    print(list_of_lists)
