@@ -9,3 +9,7 @@ class invalidWind(Exception):
 class invalidName(Exception):
     def __str__(self):
         return '이름을 올바르게 입력해 주세요.'
+
+class invalidTotalScore(Exception):
+    def __str__(self):
+        return '마작 점수 총 합은 100,000이여야 합니다. 점수를 확인해 주세요.'
