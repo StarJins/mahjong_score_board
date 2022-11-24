@@ -1,0 +1,8 @@
+# fly.toml file generated for mahjong-score-board on 2022-11-24T21:58:11+09:00
+
+app = "mahjong-score-board"
+kill_signal = "SIGINT"
+kill_timeout = 5
+processes = []
+
+[env]

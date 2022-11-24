@@ -8,7 +8,7 @@
     * discord bot 생성(완료)
     * discord bot 기본 기능 테스트(완료)
     * mahjong_score_board와 연동(완료)
-4. fly.io에 discor bot 배포(진행중)
+4. fly.io에 discor bot 배포(완료)
 5. 추가 개발 사항(예정)
     * discord bot 클래스 화
     * discord bot table로 더 이쁘게 출력
