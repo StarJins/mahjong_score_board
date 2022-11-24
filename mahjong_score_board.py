@@ -84,7 +84,7 @@ class MahjongScoreBoardController:
     def __setWind(self, wind):
         if wind == '동장' or wind == '동풍' or wind == '동':
             return '동장'
-        elif wind == '반장' or wind == '반' or wind == '남' or wind == '남풍':
+        elif wind == '반장' or wind == '반' or wind == '남' or wind == '남풍' or wind == '남장':
             return '반장'
         else:
             raise exception_class.invalidWind
@@ -223,7 +223,20 @@ class MahjongScoreBoardController:
         sheet = spreadsheet.worksheet('순위')
         ranks = sheet.get_all_records()
 
-        return ranks
+        resultRanks = ""
+
+        # 순위, 이름, 점수
+        for key in ranks[0].keys():
+            resultRanks += str(key) + '\t'
+        resultRanks += '\n'
+
+        # 각 해당하는 값
+        for rank in ranks:
+            for value in rank.values():
+                resultRanks += str(value) + '\t'
+            resultRanks += '\n'
+
+        return resultRanks
 
 if __name__ == '__main__':
     try:
@@ -235,17 +248,8 @@ if __name__ == '__main__':
         controller.insertUmaScore(test_input_score)
         controller.updateRawData()
         ranks = controller.getRanks()
+        print(ranks)
 
-        # 순위, 이름, 점수
-        for key in ranks[0].keys():
-            print(key, end = '\t')
-        print()
-
-        # 각 해당하는 값
-        for rank in ranks:
-            for value in rank.values():
-                print(value, end = '\t')
-            print()
     except ValueError as e:
         print(e)
         print('형식에 맞춰 점수를 숫자로 입력해 주세요.')
