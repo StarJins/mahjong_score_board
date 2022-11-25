@@ -1,7 +1,7 @@
 from discord.ext import commands
 from datetime import datetime
 import discord, mahjong_score_board
-import json, sys
+import json
 
 with open(".discord_bot_token.json", 'r', encoding='UTF-8') as json_file:
     json_data = json.load(json_file)
@@ -16,9 +16,9 @@ client.remove_command('help')   # default help 명령어 삭제
 @client.event
 async def on_ready():  # on_ready event는 discord bot이 discord에 정상적으로 접속했을 때 실행
     await client.change_presence(status=discord.Status.online)
-    sys.stdout.write('[{}] We have logged in as {}\n'.format(datetime.today(), client))
-    sys.stdout.write('[{}] Bot name: {}\n'.format(datetime.today(), client.user.name))  # 여기서 client.user는 discord bot을 의미
-    sys.stdout.write('[{}] Bot ID: {}\n'.format(datetime.today(), client.user.id))
+    print('[{}] We have logged in as {}\n'.format(datetime.today(), client))
+    print('[{}] Bot name: {}\n'.format(datetime.today(), client.user.name))  # 여기서 client.user는 discord bot을 의미
+    print('[{}] Bot ID: {}\n'.format(datetime.today(), client.user.id))
 
 @client.event
 async def on_command_error(ctx, error): # 없는 명령어가 입력됐을 때 실행
