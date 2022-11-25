@@ -10,6 +10,7 @@
     * mahjong_score_board와 연동(완료)
 4. fly.io에 discor bot 배포(완료)
 5. 추가 개발 사항(진행중)
-    * discord bot 클래스 화
-    * discord bot table로 더 이쁘게 출력(진행중)
-    * 마작 점수, 우마 점수 history 출력
+    * discord bot 클래스 화(예정)
+    * discord bot table로 더 이쁘게 출력(완료)
+    * 마작 점수, 우마 점수 history 출력(완료)
+    * 출력 더 예쁘게 테이블로 출력 안되나..(예정)

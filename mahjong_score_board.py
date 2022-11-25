@@ -221,8 +221,22 @@ class MahjongScoreBoardController:
         spreadsheet = self.__openSpreadsheet()
         sheet = spreadsheet.worksheet('순위')
         ranks = sheet.get_all_records()
-        
+
         return ranks
+
+    def getMahjongScoreData(self):
+        spreadsheet = self.__openSpreadsheet()
+        sheet = spreadsheet.worksheet('마작 점수표')
+        scores = sheet.get_all_records()
+
+        return scores
+
+    def getUmaScoreData(self):
+        spreadsheet = self.__openSpreadsheet()
+        sheet = spreadsheet.worksheet('우마 점수표')
+        scores = sheet.get_all_records()
+
+        return scores
 
 if __name__ == '__main__':
     try:
