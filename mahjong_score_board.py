@@ -1,5 +1,6 @@
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+from table2ascii import table2ascii as t2a, PresetStyle
 import gspread
 import gspread.utils
 import json
@@ -206,35 +207,39 @@ class MahjongScoreBoardController:
         # 구글 시트 접속
         spreadsheet = self.__openSpreadsheet()
         sheet = spreadsheet.worksheet('우마 점수표')
-        total_data = sheet.get_all_values()
+        total_row_index = len(sheet.get_all_values())   # 추가된 row index 구하기
 
         sheet = spreadsheet.worksheet('RAW 데이터')
 
-        # 각 유저의 uma 총합을 계산해서 update
+        # DB삭제 시 점수 실시간 반영을 위해 총점 계산은 excel 함수 사용
         for idx in range(2, 8):
-            total_score = 0
-            for elem in total_data[1:]:
-                total_score += int(elem[idx])
             cellidx = '{col_index}2'.format(col_index=self.__getCellAlphaByIdx(idx))
-            sheet.update(cellidx, total_score, value_input_option=gspread.utils.ValueInputOption.user_entered)
+            value = "=SUM('우마 점수표'!{col_index}2:{col_index}{row_index})".format(col_index=self.__getCellAlphaByIdx(idx), row_index=total_row_index)
+            sheet.update(cellidx, value, value_input_option=gspread.utils.ValueInputOption.user_entered)
 
     def getRanks(self):
         spreadsheet = self.__openSpreadsheet()
         sheet = spreadsheet.worksheet('순위')
         ranks = sheet.get_all_records()
 
-        resultRanks = ""
+        # ranks raw 데이터
+        # [{'순위': 1, '이름': '권혁규', '점수': 0},
+        #  {'순위': 2, '이름': '김동현', '점수': 0},
+        #  {'순위': 3, '이름': '김재경', '점수': 0},
+        #  {'순위': 4, '이름': '김진태', '점수': 0},
+        #  {'순위': 5, '이름': '박인수', '점수': 0},
+        #  {'순위': 6, '이름': '서준석', '점수': 0}]
 
-        # 순위, 이름, 점수
-        for key in ranks[0].keys():
-            resultRanks += str(key) + '\t'
-        resultRanks += '\n'
-
-        # 각 해당하는 값
+        body = []
         for rank in ranks:
-            for value in rank.values():
-                resultRanks += str(value) + '\t'
-            resultRanks += '\n'
+            body.append([rank['순위'], rank['이름'], rank['점수']])
+
+        resultRanks = t2a(
+            header=['순위', '이름', '점수'],
+            body=body,
+            style=PresetStyle.plain,
+            cell_padding=3
+        )
 
         return resultRanks
 

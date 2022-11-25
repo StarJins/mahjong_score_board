@@ -16,9 +16,9 @@ client.remove_command('help')   # default help 명령어 삭제
 @client.event
 async def on_ready():  # on_ready event는 discord bot이 discord에 정상적으로 접속했을 때 실행
     await client.change_presence(status=discord.Status.online)
-    print('[{}] We have logged in as {}\n'.format(datetime.today(), client))
-    print('[{}] Bot name: {}\n'.format(datetime.today(), client.user.name))  # 여기서 client.user는 discord bot을 의미
-    print('[{}] Bot ID: {}\n'.format(datetime.today(), client.user.id))
+    print('[{}] We have logged in as {}'.format(datetime.today(), client))
+    print('[{}] Bot name: {}'.format(datetime.today(), client.user.name))  # 여기서 client.user는 discord bot을 의미
+    print('[{}] Bot ID: {}'.format(datetime.today(), client.user.id))
 
 @client.event
 async def on_command_error(ctx, error): # 없는 명령어가 입력됐을 때 실행
@@ -47,7 +47,7 @@ async def showRank(ctx):
     await ctx.send('수집중...')
     boardController = mahjong_score_board.MahjongScoreBoardController()
     ranks = boardController.getRanks()
-    await ctx.send(ranks)
+    await ctx.send(f"```\n{ranks}\n```")
 
 @client.command(name='링크')    # 구글 스프레드시트 링크 출력
 async def showRank(ctx):
