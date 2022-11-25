@@ -23,6 +23,7 @@ async def on_ready():  # on_ready event는 discord bot이 discord에 정상적�
 @client.event
 async def on_command_error(ctx, error): # 없는 명령어가 입력됐을 때 실행
     await ctx.send('없는 명령어 입니다.')
+    await ctx.send(error)
     await showCommand(ctx)
 
 @client.command(name='입력')    # 마작 점수 입력 함수
@@ -44,10 +45,33 @@ async def insertScore(ctx, *args):
 
 @client.command(name='랭킹')    # 랭킹 출력 함수
 async def showRank(ctx):
-    await ctx.send('수집중...')
+    await ctx.send('수집중...2')
     boardController = mahjong_score_board.MahjongScoreBoardController()
     ranks = boardController.getRanks()
-    await ctx.send(f"```\n{ranks}\n```")
+
+    # ranks raw 데이터
+    # [{'순위': 1, '이름': '권혁규', '점수': 0},
+    #  {'순위': 2, '이름': '김동현', '점수': 0},
+    #  {'순위': 3, '이름': '김재경', '점수': 0},
+    #  {'순위': 4, '이름': '김진태', '점수': 0},
+    #  {'순위': 5, '이름': '박인수', '점수': 0},
+    #  {'순위': 6, '이름': '서준석', '점수': 0}]
+
+    rank_data = ''
+    name_data = ''
+    score_data = ''
+    # 각 col별 데이터 설정
+    for rank in ranks:
+        rank_data += str(rank['순위']) + '\n'
+        name_data += rank['이름'] + '\n'
+        score_data += str(rank['점수']) + '\n'
+
+    # 테이블 세팅
+    embed=discord.Embed(title='전체 순위', color=discord.Color.purple())
+    embed.add_field(name='순위', value=rank_data)
+    embed.add_field(name='이름', value=name_data)
+    embed.add_field(name='점수', value=score_data)
+    await ctx.send(embed=embed)
 
 @client.command(name='링크')    # 구글 스프레드시트 링크 출력
 async def showRank(ctx):

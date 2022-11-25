@@ -221,27 +221,8 @@ class MahjongScoreBoardController:
         spreadsheet = self.__openSpreadsheet()
         sheet = spreadsheet.worksheet('순위')
         ranks = sheet.get_all_records()
-
-        # ranks raw 데이터
-        # [{'순위': 1, '이름': '권혁규', '점수': 0},
-        #  {'순위': 2, '이름': '김동현', '점수': 0},
-        #  {'순위': 3, '이름': '김재경', '점수': 0},
-        #  {'순위': 4, '이름': '김진태', '점수': 0},
-        #  {'순위': 5, '이름': '박인수', '점수': 0},
-        #  {'순위': 6, '이름': '서준석', '점수': 0}]
-
-        body = []
-        for rank in ranks:
-            body.append([rank['순위'], rank['이름'], rank['점수']])
-
-        resultRanks = t2a(
-            header=['순위', '이름', '점수'],
-            body=body,
-            style=PresetStyle.plain,
-            cell_padding=3
-        )
-
-        return resultRanks
+        
+        return ranks
 
 if __name__ == '__main__':
     try:
