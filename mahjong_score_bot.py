@@ -45,7 +45,7 @@ async def insertScore(ctx, *args):
 
 @client.command(name='랭킹')    # 랭킹 출력 함수
 async def showRank(ctx):
-    await ctx.send('수집중...2')
+    await ctx.send('수집중...')
     boardController = mahjong_score_board.MahjongScoreBoardController()
     ranks = boardController.getRanks()
 
