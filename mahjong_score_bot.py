@@ -3,7 +3,7 @@ import discord
 import mahjong_score_board
 import json
 
-with open("token.json", 'r', encoding='UTF-8') as json_file:
+with open(".discord_bot_token.json", 'r', encoding='UTF-8') as json_file:
     json_data = json.load(json_file)
     token = json_data['botToken']
 

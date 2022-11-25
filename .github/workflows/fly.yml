@@ -13,5 +13,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: Generate API token
+        run: |
+          echo "$GOOGLE_SHEET_KEY" >> .google_sheet_key.json
+          echo "$DISCORD_BOT_TOKEN" >> .discord_bot_token.json
+        env:
+          GOOGLE_SHEET_KEY: ${{ secrets.GOOGLE_SHEET_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+
       - uses: superfly/flyctl-actions/setup-flyctl@master
+
       - run: flyctl deploy --remote-only
