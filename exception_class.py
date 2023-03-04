@@ -13,3 +13,7 @@ class invalidName(Exception):
 class invalidTotalScore(Exception):
     def __str__(self):
         return '마작 점수 총 합은 100,000이여야 합니다. 점수를 확인해 주세요.'
+
+class invalidUmaTotalScore(Exception):
+    def __str__(self):
+        return '우마 총 합은 0이여야 합니다. 점수를 확인해 주세요.'

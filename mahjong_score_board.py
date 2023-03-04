@@ -172,7 +172,7 @@ class MahjongScoreBoardController:
         result_score = {}
         priority_idx = 1
         for idx in range(4):
-            result_score[self.__getFullName(name_list[idx])] = [float(float(score_list[idx]) / 1000), priority_idx]
+            result_score[self.__getFullName(name_list[idx])] = [(float(score_list[idx]) - 25000) / 1000, priority_idx]
             priority_idx += 1
         # -item[1][0] -> score(내림차순), item[1][1] -> priority_idx(오름차순), tuple로 만들어서 이중 정렬 구현
         result_score = dict(sorted(result_score.items(), key = lambda item : (-item[1][0], item[1][1])))
@@ -191,8 +191,10 @@ class MahjongScoreBoardController:
             total_uma += result_score[key][0]
 
         # I: 총합
-        if total_uma != 100:
-            raise exception_class.invalidTotalScore
+        if total_uma != 0:
+            for key in result_score.keys():
+                print (key + ": " + result_score[key][0])
+            raise exception_class.invalidUmaTotalScore
         insert_data[8] = total_uma
         
         # J: 동남서북
