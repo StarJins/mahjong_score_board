@@ -77,11 +77,15 @@ class MahjongScoreBoardController:
         if len(split_input_data) != 9:
             raise exception_class.invalidInput
 
-        wind = split_input_data[0]
-        name_list = [split_input_data[1], split_input_data[3], split_input_data[5], split_input_data[7]]
+        wind = self.__setWind(split_input_data[0])
+        name_list = [self.__getFullName(split_input_data[1]), self.__getFullName(split_input_data[3]), self.__getFullName(split_input_data[5]), self.__getFullName(split_input_data[7])]
         score_list = [split_input_data[2], split_input_data[4], split_input_data[6], split_input_data[8]]
 
-        return wind, name_list, score_list
+        convert_input_data = wind
+        for i in range(4):
+            convert_input_data += " " + name_list[i] + " " + score_list[i]
+
+        return score_list, convert_input_data
 
     def __setWind(self, wind):
         if wind == '동장' or wind == '동풍' or wind == '동':
@@ -95,7 +99,14 @@ class MahjongScoreBoardController:
         # 마작 점수표 업데이트
 
         # 변수 설정
-        wind, name_list, score_list = self.__paringInputData(input_data)
+        score_list, convert_input_data = self.__paringInputData(input_data)
+
+        # 점수 합이 100000점인지 확인
+        total_score = 0
+        for score in score_list:
+            total_score += int(score)
+        if total_score != 100000:
+            raise exception_class.invalidTotalScore
 
         # 구글 시트 접속
         spreadsheet = self.__openSpreadsheet()
@@ -104,37 +115,16 @@ class MahjongScoreBoardController:
         total_row_index += 1
 
         # 마작 점수표 sheet 셀 순서
-        # A: 날짜, B: 동장/반장, C: 권, D: 마, E: 재, F: 진, G: 인, H: 준, I: 총합, J: 동남서북
-        insert_data = [0 for i in range(10)]
-        check_array = [0 for i in range(10)]
+        # A: 날짜, B: 입력데이터
+        insert_data = [0 for i in range(2)]
 
         # A: 날짜
         date = datetime.today()
         ymd = '{}-{}-{}'.format(date.year, date.month, date.day)
         insert_data[0] = ymd
 
-        # B: 동장/반장
-        wind = self.__setWind(wind)
-        insert_data[1] = self.__setWind(wind)
-
-        # C ~ H: 점수 입력
-        total_score = 0
-        for i in range(4):
-            idx = self.__getNameIdx(name_list[i])
-            if check_array[idx] == 1:
-                raise exception_class.invalidName
-            else:
-                insert_data[idx] = score_list[i]
-                total_score += int(score_list[i])
-                check_array[idx] = 1
-
-        # I: 총합
-        if total_score != 100000:
-            raise exception_class.invalidTotalScore
-        insert_data[8] = total_score
-
-        # J: 동남서북
-        insert_data[9] = '동:{}, 남:{}, 서:{}, 북:{}'.format(self.__getFullName(name_list[0]), self.__getFullName(name_list[1]), self.__getFullName(name_list[2]), self.__getFullName(name_list[3]))
+        # B: 입력데이터
+        insert_data[1] = convert_input_data
 
         # data 입력
         sheet.append_row(values=insert_data, value_input_option=gspread.utils.ValueInputOption.user_entered)
@@ -249,10 +239,10 @@ if __name__ == '__main__':
         print('사람/점수는 동남서북 순으로 입력')
         test_input_score = input()
         controller.insertMahjongScore(test_input_score)
-        controller.insertUmaScore(test_input_score)
-        controller.updateRawData()
-        ranks = controller.getRanks()
-        print(ranks)
+        # controller.insertUmaScore(test_input_score)
+        # controller.updateRawData()
+        # ranks = controller.getRanks()
+        # print(ranks)
 
     except ValueError as e:
         print(e)
