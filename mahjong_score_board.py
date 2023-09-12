@@ -85,7 +85,7 @@ class MahjongScoreBoardController:
         for i in range(4):
             convert_input_data += " " + name_list[i] + " " + score_list[i]
 
-        return score_list, convert_input_data
+        return wind, score_list, name_list, convert_input_data
 
     def __setWind(self, wind):
         if wind == '동장' or wind == '동풍' or wind == '동':
@@ -99,14 +99,15 @@ class MahjongScoreBoardController:
         # 마작 점수표 업데이트
 
         # 변수 설정
-        score_list, convert_input_data = self.__paringInputData(input_data)
+        _, score_list, _, convert_input_data = self.__paringInputData(input_data)
 
         # 점수 합이 100000점인지 확인
         total_score = 0
         for score in score_list:
             total_score += int(score)
+
         if total_score != 100000:
-            raise exception_class.invalidTotalScore
+            raise exception_class.invalidTotalScore('마작 점수 총 합은 100,000이여야 합니다. 점수를 확인해 주세요.(현재: {})'.format(total_score))
 
         # 구글 시트 접속
         spreadsheet = self.__openSpreadsheet()
@@ -115,16 +116,16 @@ class MahjongScoreBoardController:
         total_row_index += 1
 
         # 마작 점수표 sheet 셀 순서
-        # A: 날짜, B: 입력데이터
-        insert_data = [0 for i in range(2)]
+        # A: 날짜, B: 마작 점수
+        insert_data = []
 
         # A: 날짜
         date = datetime.today()
         ymd = '{}-{}-{}'.format(date.year, date.month, date.day)
-        insert_data[0] = ymd
+        insert_data.append(ymd)
 
-        # B: 입력데이터
-        insert_data[1] = convert_input_data
+        # B: 마작 점수
+        insert_data.append(convert_input_data)
 
         # data 입력
         sheet.append_row(values=insert_data, value_input_option=gspread.utils.ValueInputOption.user_entered)
@@ -133,7 +134,7 @@ class MahjongScoreBoardController:
         # 우마 점수표 업데이트
 
         # 변수 설정
-        wind, name_list, score_list = self.__paringInputData(input_data)
+        wind, score_list, name_list, _ = self.__paringInputData(input_data)
 
         # 구글 시트 접속
         spreadsheet = self.__openSpreadsheet()
@@ -142,19 +143,15 @@ class MahjongScoreBoardController:
         total_row_index += 1
 
         # 우마 점수표 sheet 셀 순서
-        # A: 날짜, B: 동장/반장, C: 권, D: 마, E: 재, F: 진, G: 인, H: 준, I: 총합, J: 동남서북
-        insert_data = [0 for i in range(10)]
+        # A: 날짜, B: 우마 점수
+        insert_data = []
 
         # A: 날짜
         date = datetime.today()
         ymd = '{}-{}-{}'.format(date.year, date.month, date.day)
-        insert_data[0] = ymd
+        insert_data.append(ymd)
 
-        # B: 동장/반장
-        wind = self.__setWind(wind)
-        insert_data[1] = wind
-
-        # C ~ H: 점수 입력
+        # B: 우마 점수
         # 원투 우마 점수 상수화
         ONE_TWO_UMA_SCORE = { '반장' : { 1 : '20', 2 : '10', 3 : '-10', 4 : '-20' }, '동장' : { 1 : '10', 2 : '5', 3 : '-5', 4 : '-10' } }
 
@@ -163,7 +160,7 @@ class MahjongScoreBoardController:
         result_score = {}
         priority_idx = 1
         for idx in range(4):
-            result_score[self.__getFullName(name_list[idx])] = [str(Decimal(str(int(score_list[idx]) - 25000)) / Decimal('1000')), priority_idx]
+            result_score[name_list[idx]] = [str(Decimal(str(int(score_list[idx]) - 25000)) / Decimal('1000')), priority_idx]
             priority_idx += 1
         # -item[1][0] -> score(내림차순), item[1][1] -> priority_idx(오름차순), tuple로 만들어서 이중 정렬 구현
         result_score = dict(sorted(result_score.items(), key = lambda item : (-float(item[1][0]), float(item[1][1]))))
@@ -173,24 +170,23 @@ class MahjongScoreBoardController:
             result_score[key].append(rank)
             rank += 1
 
+        # result_score의 element 한 개 구조 -> [우마점수, priority, 랭킹]
         for key in result_score.keys():
             result_score[key][0] = str(Decimal(result_score[key][0]) + Decimal(ONE_TWO_UMA_SCORE[wind][result_score[key][2]]))
 
+        uma_list = []
         total_uma = '0'
         for key in result_score.keys():
-            insert_data[self.__getNameIdx(key)] = result_score[key][0]
+            uma_list.append(result_score[key][0])
             total_uma = str(Decimal(total_uma) + Decimal(result_score[key][0]))
 
-        # I: 총합
         if Decimal(total_uma) != Decimal('0'):
-            print('total_uma: {}'.format(total_uma))
-            for key in result_score.keys():
-                print ('{}: {}'.format(key, result_score[key][0]))
-            raise exception_class.invalidUmaTotalScore
-        insert_data[8] = total_uma
-        
-        # J: 동남서북
-        insert_data[9] = '동:{}, 남:{}, 서:{}, 북:{}'.format(self.__getFullName(name_list[0]), self.__getFullName(name_list[1]), self.__getFullName(name_list[2]), self.__getFullName(name_list[3]))
+            raise exception_class.invalidUmaTotalScore('우마 총 합은 0이여야 합니다. 점수를 확인해 주세요.(현재: {})'.format(total_uma))
+
+        convert_input_data = wind
+        for i in range(4):
+            convert_input_data += " " + name_list[i] + " " + uma_list[i]
+        insert_data.append(convert_input_data)
 
         # data 입력
         sheet.append_row(values=insert_data, value_input_option=gspread.utils.ValueInputOption.user_entered)
@@ -239,7 +235,7 @@ if __name__ == '__main__':
         print('사람/점수는 동남서북 순으로 입력')
         test_input_score = input()
         controller.insertMahjongScore(test_input_score)
-        # controller.insertUmaScore(test_input_score)
+        controller.insertUmaScore(test_input_score)
         # controller.updateRawData()
         # ranks = controller.getRanks()
         # print(ranks)
