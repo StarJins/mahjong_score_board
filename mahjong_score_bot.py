@@ -80,35 +80,16 @@ async def showMahjongScore(ctx):
     scores = boardController.getMahjongScoreData()
     
     date_data = ''
-    wind_data = ''
-    person_data = ['', '', '', '', '', '']
-    total_score_data = ''
-    order_data = ''
+    score_data = ''
     # 각 col별 데이터 설정
     for score in scores:
         date_data += str(score['날짜']) + '\n'
-        wind_data += str(score['동장/반장']) + '\n'
-        person_data[0] += str(score['권혁규']) + '\n'
-        person_data[1] += str(score['김동현']) + '\n'
-        person_data[2] += str(score['김재경']) + '\n'
-        person_data[3] += str(score['김진태']) + '\n'
-        person_data[4] += str(score['박인수']) + '\n'
-        person_data[5] += str(score['서준석']) + '\n'
-        total_score_data += str(score['총합']) + '\n'
-        order_data += str(score['동남서북']) + '\n'
+        score_data += str(score['점수']) + '\n'
         
     # 테이블 세팅
     embed=discord.Embed(title='마작 점수', color=discord.Color.purple())
     embed.add_field(name='날짜', value=date_data)
-    embed.add_field(name='동장/반장', value=wind_data)
-    embed.add_field(name='권혁규', value=person_data[0])
-    embed.add_field(name='김동현', value=person_data[1])
-    embed.add_field(name='김재경', value=person_data[2])
-    embed.add_field(name='김진태', value=person_data[3])
-    embed.add_field(name='박인수', value=person_data[4])
-    embed.add_field(name='서준석', value=person_data[5])
-    embed.add_field(name='총합', value=total_score_data)
-    embed.add_field(name='동남서북', value=order_data)
+    embed.add_field(name='점수', value=score_data)
     await ctx.send(embed=embed)
 
 
@@ -119,35 +100,16 @@ async def showMahjongScore(ctx):
     scores = boardController.getUmaScoreData()
     
     date_data = ''
-    wind_data = ''
-    person_data = ['', '', '', '', '', '']
-    total_score_data = ''
-    order_data = ''
+    uma_data = ''
     # 각 col별 데이터 설정
     for score in scores:
         date_data += str(score['날짜']) + '\n'
-        wind_data += str(score['동장/반장']) + '\n'
-        person_data[0] += str(score['권혁규']) + '\n'
-        person_data[1] += str(score['김동현']) + '\n'
-        person_data[2] += str(score['김재경']) + '\n'
-        person_data[3] += str(score['김진태']) + '\n'
-        person_data[4] += str(score['박인수']) + '\n'
-        person_data[5] += str(score['서준석']) + '\n'
-        total_score_data += str(score['총합']) + '\n'
-        order_data += str(score['동남서북']) + '\n'
+        uma_data += str(score['점수']) + '\n'
         
     # 테이블 세팅
     embed=discord.Embed(title='우마 점수', color=discord.Color.purple())
     embed.add_field(name='날짜', value=date_data)
-    embed.add_field(name='동장/반장', value=wind_data)
-    embed.add_field(name='권혁규', value=person_data[0])
-    embed.add_field(name='김동현', value=person_data[1])
-    embed.add_field(name='김재경', value=person_data[2])
-    embed.add_field(name='김진태', value=person_data[3])
-    embed.add_field(name='박인수', value=person_data[4])
-    embed.add_field(name='서준석', value=person_data[5])
-    embed.add_field(name='총합', value=total_score_data)
-    embed.add_field(name='동남서북', value=order_data)
+    embed.add_field(name='점수', value=uma_data)
     await ctx.send(embed=embed)
 
 @client.command(name='DB링크')    # 구글 스프레드시트 링크 출력
