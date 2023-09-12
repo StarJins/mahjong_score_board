@@ -1,6 +1,5 @@
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
-from table2ascii import table2ascii as t2a, PresetStyle
 from decimal import Decimal
 import gspread
 import gspread.utils
@@ -9,92 +8,6 @@ import exception_class
 import traceback
 
 class MahjongScoreBoardController:
-    def __openSpreadsheet(self):
-        with open('info.json', 'r', encoding='UTF-8') as json_file:
-            info = json.load(json_file)
-
-            scope = ['https://spreadsheets.google.com/feeds',
-                    'https://www.googleapis.com/auth/spreadsheets',
-                    'https://www.googleapis.com/auth/drive.file',
-                    'https://www.googleapis.com/auth/drive']
-
-            creds = ServiceAccountCredentials.from_json_keyfile_name(info['keyFile'], scope)
-
-            spreadsheet_name = info['spreadsheetName']
-            client = gspread.authorize(creds)
-            spreadsheet = client.open(spreadsheet_name)
-
-            return spreadsheet
-
-    def __getFullName(self, name):
-        if name in '권혁규':
-            return '권혁규'
-        elif name in '김동현' or name in '마산':
-            return '김동현'
-        elif name in '김재경' or name in '홍':
-            return '김재경'
-        elif name in '김진태':
-            return '김진태'
-        elif name in '박인수':
-            return '박인수'
-        elif name in '서준석':
-            return '서준석'
-        else:
-            raise exception_class.invalidName
-
-    def __getNameIdx(self, name):
-        if name in '권혁규':
-            return 2
-        elif name in '김동현' or name in '마산':
-            return 3
-        elif name in '김재경' or name in '홍':
-            return 4
-        elif name in '김진태':
-            return 5
-        elif name in '박인수':
-            return 6
-        elif name in '서준석':
-            return 7
-        else:
-            raise exception_class.invalidName
-        
-    def __getCellAlphaByIdx(self, idx):
-        if idx == 2:
-            return 'C'
-        elif idx == 3:
-            return 'D'
-        elif idx == 4:
-            return 'E'
-        elif idx == 5:
-            return 'F'
-        elif idx == 6:
-            return 'G'
-        else: #idx == 7
-            return 'H'
-
-    def __paringInputData(self, input_data):
-        split_input_data = input_data.split()
-        if len(split_input_data) != 9:
-            raise exception_class.invalidInput
-
-        wind = self.__setWind(split_input_data[0])
-        name_list = [self.__getFullName(split_input_data[1]), self.__getFullName(split_input_data[3]), self.__getFullName(split_input_data[5]), self.__getFullName(split_input_data[7])]
-        score_list = [split_input_data[2], split_input_data[4], split_input_data[6], split_input_data[8]]
-
-        convert_input_data = wind
-        for i in range(4):
-            convert_input_data += " " + name_list[i] + " " + score_list[i]
-
-        return wind, score_list, name_list, convert_input_data
-
-    def __setWind(self, wind):
-        if wind == '동장' or wind == '동풍' or wind == '동':
-            return '동장'
-        elif wind == '반장' or wind == '반' or wind == '남' or wind == '남풍' or wind == '남장':
-            return '반장'
-        else:
-            raise exception_class.invalidWind
-
     def insertMahjongScore(self, input_data):
         # 마작 점수표 업데이트
 
@@ -248,17 +161,78 @@ class MahjongScoreBoardController:
 
         return scores
 
+    def __openSpreadsheet(self):
+        with open('info.json', 'r', encoding='UTF-8') as json_file:
+            info = json.load(json_file)
+
+            scope = ['https://spreadsheets.google.com/feeds',
+                    'https://www.googleapis.com/auth/spreadsheets',
+                    'https://www.googleapis.com/auth/drive.file',
+                    'https://www.googleapis.com/auth/drive']
+
+            creds = ServiceAccountCredentials.from_json_keyfile_name(info['keyFile'], scope)
+
+            spreadsheet_name = info['spreadsheetName']
+            client = gspread.authorize(creds)
+            spreadsheet = client.open(spreadsheet_name)
+
+            return spreadsheet
+
+    def __paringInputData(self, input_data):
+        split_input_data = input_data.split()
+        if len(split_input_data) != 9:
+            raise exception_class.invalidInput
+
+        wind = self.__setWind(split_input_data[0])
+        name_list = [self.__getFullName(split_input_data[1]), self.__getFullName(split_input_data[3]), self.__getFullName(split_input_data[5]), self.__getFullName(split_input_data[7])]
+        score_list = [split_input_data[2], split_input_data[4], split_input_data[6], split_input_data[8]]
+
+        convert_input_data = wind
+        for i in range(4):
+            convert_input_data += " " + name_list[i] + " " + score_list[i]
+
+        return wind, score_list, name_list, convert_input_data
+
+    def __getFullName(self, name):
+        if name in '권혁규':
+            return '권혁규'
+        elif name in '김동현' or name in '마산':
+            return '김동현'
+        elif name in '김재경' or name in '홍':
+            return '김재경'
+        elif name in '김진태':
+            return '김진태'
+        elif name in '박인수':
+            return '박인수'
+        elif name in '서준석':
+            return '서준석'
+        elif name in '김인태':
+            return '김인태'
+        else:
+            return name
+
+    def __setWind(self, wind):
+        if wind == '동장' or wind == '동풍' or wind == '동':
+            return '동장'
+        elif wind == '반장' or wind == '반' or wind == '남' or wind == '남풍' or wind == '남장':
+            return '반장'
+        else:
+            raise exception_class.invalidWind
+
 if __name__ == '__main__':
     try:
         controller = MahjongScoreBoardController()
-        print('점수 입력(ex: 반장 인 20000 홍 20000 진 20000 준 40000)')
-        print('사람/점수는 동남서북 순으로 입력')
-        test_input_score = input()
+        # print('점수 입력(ex: 반장 인 20000 홍 20000 진 20000 준 40000)')
+        # print('사람/점수는 동남서북 순으로 입력')
+        # test_input_score = input()
         # controller.insertMahjongScore(test_input_score)
         # controller.insertUmaScore(test_input_score)
-        controller.updateRawData()
-        ranks = controller.getRanks()
-        print(ranks)
+        # controller.updateRawData()
+        # ranks = controller.getRanks()
+        # print(ranks)
+
+        print(controller.getMahjongScoreData())
+        print(controller.getUmaScoreData())
 
     except ValueError as e:
         print(e)
