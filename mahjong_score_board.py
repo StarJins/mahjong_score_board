@@ -208,15 +208,19 @@ class MahjongScoreBoardController:
 
         each_total_uma_scores = dict(sorted(each_total_uma_scores.items(), key=lambda x: float(x[1]), reverse=True))
 
-        sheet = spreadsheet.worksheet('RAW 데이터')
+        sheet = spreadsheet.worksheet('순위')
 
-        row_index = 1
+        row_index = 2
         for name, uma in each_total_uma_scores.items():
             cell_index = 'A{}'.format(row_index)
-            value = name
+            value = row_index - 1
             sheet.update(cell_index, value, value_input_option=gspread.utils.ValueInputOption.user_entered)
 
             cell_index = 'B{}'.format(row_index)
+            value = name
+            sheet.update(cell_index, value, value_input_option=gspread.utils.ValueInputOption.user_entered)
+
+            cell_index = 'C{}'.format(row_index)
             value = uma
             sheet.update(cell_index, value, value_input_option=gspread.utils.ValueInputOption.user_entered)
 
@@ -253,8 +257,8 @@ if __name__ == '__main__':
         # controller.insertMahjongScore(test_input_score)
         # controller.insertUmaScore(test_input_score)
         controller.updateRawData()
-        # ranks = controller.getRanks()
-        # print(ranks)
+        ranks = controller.getRanks()
+        print(ranks)
 
     except ValueError as e:
         print(e)
