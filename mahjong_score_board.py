@@ -174,10 +174,8 @@ class MahjongScoreBoardController:
         for key in result_score.keys():
             result_score[key][0] = str(Decimal(result_score[key][0]) + Decimal(ONE_TWO_UMA_SCORE[wind][result_score[key][2]]))
 
-        uma_list = []
         total_uma = '0'
         for key in result_score.keys():
-            uma_list.append(result_score[key][0])
             total_uma = str(Decimal(total_uma) + Decimal(result_score[key][0]))
 
         if Decimal(total_uma) != Decimal('0'):
@@ -185,7 +183,7 @@ class MahjongScoreBoardController:
 
         convert_input_data = wind
         for i in range(4):
-            convert_input_data += " " + name_list[i] + " " + uma_list[i]
+            convert_input_data += " " + name_list[i] + " " + result_score[name_list[i]][0]
         insert_data.append(convert_input_data)
 
         # data 입력
@@ -197,15 +195,33 @@ class MahjongScoreBoardController:
         # 구글 시트 접속
         spreadsheet = self.__openSpreadsheet()
         sheet = spreadsheet.worksheet('우마 점수표')
-        total_row_index = len(sheet.get_all_values())   # 추가된 row index 구하기
+        uma_datas = sheet.get_all_values()
+
+        each_total_uma_scores = {}
+        for uma_data in uma_datas[1:]:
+            _, uma_list, name_list, _ = self.__paringInputData(uma_data[1])
+            for idx in range(4):
+                if not name_list[idx] in each_total_uma_scores:
+                    each_total_uma_scores[name_list[idx]] = '0'
+
+                each_total_uma_scores[name_list[idx]] = str(Decimal(each_total_uma_scores[name_list[idx]]) + Decimal(uma_list[idx]))
+
+        each_total_uma_scores = dict(sorted(each_total_uma_scores.items(), key=lambda x: float(x[1]), reverse=True))
 
         sheet = spreadsheet.worksheet('RAW 데이터')
 
-        # DB삭제 시 점수 실시간 반영을 위해 총점 계산은 excel 함수 사용
-        for idx in range(2, 8):
-            cellidx = '{col_index}2'.format(col_index=self.__getCellAlphaByIdx(idx))
-            value = "=SUM('우마 점수표'!{col_index}2:{col_index}{row_index})".format(col_index=self.__getCellAlphaByIdx(idx), row_index=total_row_index)
-            sheet.update(cellidx, value, value_input_option=gspread.utils.ValueInputOption.user_entered)
+        row_index = 1
+        for name, uma in each_total_uma_scores.items():
+            cell_index = 'A{}'.format(row_index)
+            value = name
+            sheet.update(cell_index, value, value_input_option=gspread.utils.ValueInputOption.user_entered)
+
+            cell_index = 'B{}'.format(row_index)
+            value = uma
+            sheet.update(cell_index, value, value_input_option=gspread.utils.ValueInputOption.user_entered)
+
+            row_index += 1
+        return
 
     def getRanks(self):
         spreadsheet = self.__openSpreadsheet()
@@ -234,9 +250,9 @@ if __name__ == '__main__':
         print('점수 입력(ex: 반장 인 20000 홍 20000 진 20000 준 40000)')
         print('사람/점수는 동남서북 순으로 입력')
         test_input_score = input()
-        controller.insertMahjongScore(test_input_score)
-        controller.insertUmaScore(test_input_score)
-        # controller.updateRawData()
+        # controller.insertMahjongScore(test_input_score)
+        # controller.insertUmaScore(test_input_score)
+        controller.updateRawData()
         # ranks = controller.getRanks()
         # print(ranks)
 
